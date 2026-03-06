@@ -220,6 +220,12 @@ function App() {
       const perm = await SpeechRecognition.hasPermission();
       if (!perm.permission) {
         await SpeechRecognition.requestPermission();
+        const permAfter = await SpeechRecognition.hasPermission();
+        if (!permAfter.permission) {
+          // eslint-disable-next-line no-alert
+          alert("Microphone permission was not granted. Please enable it in app settings.");
+          return;
+        }
       }
 
       setIsListening(true);
@@ -234,11 +240,16 @@ function App() {
       const speechText = result.matches && result.matches[0];
       if (speechText) {
         handleSend(speechText);
+      } else {
+        // eslint-disable-next-line no-alert
+        alert("I could not hear anything. Please try speaking again.");
       }
     } catch (e) {
       setIsListening(false);
       // eslint-disable-next-line no-console
       console.error("Speech recognition error", e);
+      // eslint-disable-next-line no-alert
+      alert("There was an error starting voice input on this device.");
     }
   };
 
