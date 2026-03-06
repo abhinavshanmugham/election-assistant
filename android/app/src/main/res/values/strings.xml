@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">election-assistant</string>
+    <string name="title_activity_main">election-assistant</string>
+    <string name="package_name">com.abhinav.electionassistant</string>
+    <string name="custom_url_scheme">com.abhinav.electionassistant</string>
+</resources>
