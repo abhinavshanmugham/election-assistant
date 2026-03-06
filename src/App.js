@@ -77,32 +77,6 @@ function App() {
   const speakText = async (text) => {
     if (!text) return;
 
-    const platform = Capacitor.getPlatform();
-
-    // Prefer native TTS on device (APK)
-    if (platform !== "web") {
-      try {
-        await TextToSpeech.stop();
-        await TextToSpeech.speak({
-          text,
-          lang: "en-IN",
-          rate: 1.0,
-          pitch: 1.0
-        });
-        return;
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn("Native TTS failed, falling back to browser TTS if available", e);
-      }
-    }
-
-    // Browser fallback (laptop)
-    if (typeof window === "undefined") return;
-    const synth = window.speechSynthesis;
-    if (!synth) return;
-
-    synth.cancel();
-
     const lines = text
       .split("\n")
       .map((l) => l.trim())
@@ -122,14 +96,47 @@ function App() {
 
     const queue = [];
     if (englishParts.length) {
-      queue.push({ lang: "en-IN", text: englishParts.join(". ") });
+      queue.push({ lang: "en-IN", text: englishParts.join(". "), pitch: 0.9 });
     }
     if (tamilParts.length) {
-      queue.push({ lang: "ta-IN", text: tamilParts.join(" ") });
+      queue.push({ lang: "ta-IN", text: tamilParts.join(" "), pitch: 1.0 });
     }
     if (!queue.length) {
-      queue.push({ lang: "en-IN", text });
+      queue.push({ lang: "en-IN", text, pitch: 1.0 });
     }
+
+    const platform = Capacitor.getPlatform();
+
+    // Prefer native TTS on device (APK)
+    if (platform !== "web") {
+      try {
+        await TextToSpeech.stop();
+        // Speak English then Tamil parts on device, using appropriate language codes.
+        // Pitch 0.9 is slightly deeper (more \"male-like\") for English where supported.
+        // Order matches the combined queue built above.
+        // eslint-disable-next-line no-restricted-syntax
+        for (const part of queue) {
+          // eslint-disable-next-line no-await-in-loop
+          await TextToSpeech.speak({
+            text: part.text,
+            lang: part.lang,
+            rate: 1.0,
+            pitch: part.pitch
+          });
+        }
+        return;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn("Native TTS failed, falling back to browser TTS if available", e);
+      }
+    }
+
+    // Browser fallback (laptop)
+    if (typeof window === "undefined") return;
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+
+    synth.cancel();
 
     let index = 0;
     const speakNext = () => {
