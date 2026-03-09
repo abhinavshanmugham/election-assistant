@@ -56,7 +56,7 @@ function App() {
 
           const perm = await SpeechRecognition.hasPermission();
           if (!perm.permission) {
-            await SpeechRecognition.requestPermission();
+            await SpeechRecognition.requestPermissions();
           }
         } catch (e) {
           // eslint-disable-next-line no-console
@@ -219,7 +219,7 @@ function App() {
 
       const perm = await SpeechRecognition.hasPermission();
       if (!perm.permission) {
-        await SpeechRecognition.requestPermission();
+        await SpeechRecognition.requestPermissions();
         const permAfter = await SpeechRecognition.hasPermission();
         if (!permAfter.permission) {
           // eslint-disable-next-line no-alert
