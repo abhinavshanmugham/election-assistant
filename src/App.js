@@ -233,7 +233,7 @@ function App() {
         language: "en-IN",
         maxResults: 1,
         partialResults: false,
-        popup: true
+        
       });
       setIsListening(false);
 
