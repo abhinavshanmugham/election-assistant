@@ -165,11 +165,11 @@ function App() {
         return;
       }
 
-      const perm = await SpeechRecognition.hasPermission();
-      if (!perm.permission) {
+      let perm = await SpeechRecognition.checkPermissions();
+      if (perm.speechRecognition !== "granted") {
         await SpeechRecognition.requestPermissions();
-        const permAfter = await SpeechRecognition.hasPermission();
-        if (!permAfter.permission) {
+        perm = await SpeechRecognition.checkPermissions();
+        if (perm.speechRecognition !== "granted") {
           // eslint-disable-next-line no-alert
           alert("Microphone permission was not granted. Please enable it in app settings.");
           return;
@@ -258,8 +258,8 @@ function App() {
             return;
           }
 
-          let perm = await SpeechRecognition.hasPermission();
-          if (!perm.permission) {
+          let perm = await SpeechRecognition.checkPermissions();
+          if (perm.speechRecognition !== "granted") {
             // Ask immediately when app loads
             await SpeechRecognition.requestPermissions();
           }
