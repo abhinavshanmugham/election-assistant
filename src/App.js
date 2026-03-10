@@ -263,11 +263,12 @@ function App() {
         e?.message ||
         e?.errorMessage ||
         (e ? JSON.stringify(e) : "");
-      const message = rawMessage ? `\n\nDetails: ${rawMessage}` : "";
+      const friendlyMessage =
+        rawMessage && rawMessage !== "[object Object]"
+          ? `Voice input error: ${rawMessage}`
+          : "Voice input is currently not available on this device.";
       // eslint-disable-next-line no-alert
-      alert(
-        `There was an error starting voice input on this device.${message}\n\nIf you see "UNIMPLEMENTED", rebuild the APK after running: npx cap sync android`
-      );
+      alert(friendlyMessage);
     }
   };
 
