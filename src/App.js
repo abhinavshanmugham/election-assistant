@@ -233,11 +233,15 @@ function App() {
         language: "en-IN",
         maxResults: 1,
         partialResults: false,
-        
+        popup: true,
+        prompt: "Please speak your election question"
       });
       setIsListening(false);
 
-      const speechText = result.matches && result.matches[0];
+      const speechText =
+        result && Array.isArray(result.matches) && result.matches.length
+          ? result.matches[0]
+          : "";
       if (speechText) {
         handleSend(speechText);
       } else {
