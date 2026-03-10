@@ -10,14 +10,10 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [recognizedText, setRecognizedText] = useState("");
-  const [wakeHeard, setWakeHeard] = useState(false);
   const chatBoxRef = useRef(null);
 
   // Web-only speech recognition instance
   const recognitionRef = useRef(null);
-  // Native wake-word listener subscription
-  const wakeListenerRef = useRef(null);
 
   const appendMessages = (userText, botPayload) => {
     const userMsg = { text: userText, sender: "user" };
@@ -253,13 +249,12 @@ function App() {
         console.warn("Speech recognition not supported in this browser.");
       }
     } else {
-      // Native (Android APK) – prepare native speech recognition + wake-word
+      // Native (Android APK) – prepare native speech recognition
       (async () => {
         try {
           const available = await SpeechRecognition.available();
           if (!available.available) {
-            // eslint-disable-next-line no-alert
-            alert("Microphone / speech recognition is not available on this device.");
+            console.log("Microphone / speech recognition is not available on this device.");
             return;
           }
 
@@ -267,73 +262,20 @@ function App() {
           if (!perm.permission) {
             // Ask immediately when app loads
             await SpeechRecognition.requestPermissions();
-            perm = await SpeechRecognition.hasPermission();
-          }
-
-          if (!perm.permission) {
-            // eslint-disable-next-line no-alert
-            alert(
-              "Microphone permission was not granted. Please enable it in app settings to use voice input."
-            );
-            return;
-          }
-
-          // At this point permission is granted: start wake-word listening automatically
-          try {
-            // Clean up any previous listener
-            if (wakeListenerRef.current && typeof wakeListenerRef.current.remove === "function") {
-              await wakeListenerRef.current.remove();
-              wakeListenerRef.current = null;
-            }
-
-            // Listen for partial results and detect the wake word "hello"
-            const listener = await SpeechRecognition.addListener(
-              "partialResults",
-              (data) => {
-                const matches = data && Array.isArray(data.matches) ? data.matches : [];
-                const joined = matches.join(" ");
-                setRecognizedText(joined);
-                if (joined.toLowerCase().includes("hello")) {
-                  setWakeHeard(true);
-                }
-              }
-            );
-            wakeListenerRef.current = listener;
-
-            await SpeechRecognition.start({
-              language: "en-IN",
-              maxResults: 5,
-              partialResults: true,
-              popup: false,
-              prompt: ""
-            });
-          } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error("Error starting wake-word recognition", err);
           }
         } catch (e) {
-          // eslint-disable-next-line no-console
           console.error("Error initializing native speech recognition", e);
         }
       })();
     }
 
     return () => {
-      // Cleanup on unmount for native wake listener
-      if (wakeListenerRef.current && typeof wakeListenerRef.current.remove === "function") {
-        wakeListenerRef.current.remove();
-      }
+      // Cleanup on unmount for web recognition if needed
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);
 
-  // When wake word "Hello" is heard on native, trigger a full listening session
-  useEffect(() => {
-    if (!wakeHeard) return;
-    setWakeHeard(false);
-    startListening();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wakeHeard]);
+
 
   useEffect(() => {
     if (chatBoxRef.current) {
