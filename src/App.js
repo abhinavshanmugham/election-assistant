@@ -177,12 +177,7 @@ function App() {
       }
 
       setIsListening(true);
-      // Defensive: ensure any previous session is stopped before starting again
-      try {
-        await SpeechRecognition.stop();
-      } catch (_) {
-        // ignore
-      }
+
       const result = await SpeechRecognition.start({
         language: "en-IN",
         maxResults: 1,
