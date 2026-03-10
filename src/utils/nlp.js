@@ -38,15 +38,7 @@ const detectIntent = (tokens) => {
   return "party_info";
 };
 
-const normalizeStateKey = (stateName) =>
-  stateName.toLowerCase().replace(/\s+/g, " ").trim();
 
-const cmsByKey = Object.keys(cms).reduce((map, state) => {
-  const key = normalizeStateKey(state);
-  // eslint-disable-next-line no-param-reassign
-  map[key] = cms[state];
-  return map;
-}, {});
 
 export const getResponse = (input) => {
   const tokens = tokenize(input);
@@ -102,19 +94,13 @@ export const getResponse = (input) => {
   }
 
   if (intent === "cm") {
-    const afterCmIndex = tokens.findIndex(
-      (t) => t === "cm" || (t === "chief" && tokens.includes("minister"))
+    const joinedStr = tokens.join("");
+    const matchingState = Object.keys(cms).find((state) =>
+      joinedStr.includes(state.toLowerCase().replace(/\s+/g, ""))
     );
-    const stateTokens =
-      afterCmIndex >= 0 ? tokens.slice(afterCmIndex + 1) : tokens;
-    const stateKey = normalizeStateKey(stateTokens.join(" "));
 
-    if (stateKey && cmsByKey[stateKey]) {
-      const prettyState =
-        Object.keys(cms).find(
-          (state) => normalizeStateKey(state) === stateKey
-        ) || stateKey;
-      return { text: `Chief Minister of ${prettyState}: ${cmsByKey[stateKey]}` };
+    if (matchingState) {
+      return { text: `Chief Minister of ${matchingState}: ${cms[matchingState]}` };
     }
     return {
       text:
