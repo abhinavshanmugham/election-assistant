@@ -229,6 +229,12 @@ function App() {
       }
 
       setIsListening(true);
+      // Defensive: ensure any previous session is stopped before starting again
+      try {
+        await SpeechRecognition.stop();
+      } catch (_) {
+        // ignore
+      }
       const result = await SpeechRecognition.start({
         language: "en-IN",
         maxResults: 1,
@@ -252,8 +258,16 @@ function App() {
       setIsListening(false);
       // eslint-disable-next-line no-console
       console.error("Speech recognition error", e);
+      const rawMessage =
+        (typeof e === "string" && e) ||
+        e?.message ||
+        e?.errorMessage ||
+        (e ? JSON.stringify(e) : "");
+      const message = rawMessage ? `\n\nDetails: ${rawMessage}` : "";
       // eslint-disable-next-line no-alert
-      alert("There was an error starting voice input on this device.");
+      alert(
+        `There was an error starting voice input on this device.${message}\n\nIf you see "UNIMPLEMENTED", rebuild the APK after running: npx cap sync android`
+      );
     }
   };
 
