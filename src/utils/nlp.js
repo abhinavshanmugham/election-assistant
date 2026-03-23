@@ -28,6 +28,7 @@ const tokenize = (input) => {
 const detectIntent = (tokens) => {
   const joined = tokens.join(" ");
 
+  if (joined.includes("parties")) return "list_parties";
   if (joined.includes("flag")) return "flag";
   if (joined.includes("symbol")) return "symbol";
   if (joined.includes("leader")) return "leader";
@@ -47,6 +48,11 @@ export const getResponse = (input) => {
   }
 
   const intent = detectIntent(tokens);
+
+  if (intent === "list_parties") {
+    const partyNames = parties.map(p => `- ${p.name}`).join("\n");
+    return { text: `The major parties in Tamil Nadu are:\n${partyNames}` };
+  }
 
   // Party detection using aliases and name
   const party = parties.find((p) => {
