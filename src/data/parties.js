@@ -74,7 +74,7 @@ const parties = [
   {
     name: "BJP",
     aliases: ["bjp", "lotus"],
-    leader: "K. Annamalai",
+    leader: "Nainar Nagenthran",
     sloganEn: "Sabka Saath, Sabka Vikas, Sabka Vishwas.",
     sloganTa: "சப்கா சாத், சப்கா விகாஸ், சப்கா விஸ்வாஸ்.",
     flag: "/assets/flags/bjp.png",
